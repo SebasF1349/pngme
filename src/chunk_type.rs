@@ -5,7 +5,7 @@ use std::{fmt, str::FromStr};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChunkType {
-    bytes: [u8; 4],
+    pub bytes: [u8; 4],
 }
 
 #[derive(Debug)]
