@@ -21,6 +21,11 @@ pub enum ChunkError {
 }
 
 impl Chunk {
+    pub fn calculate_crc(chunk_type: ChunkType, data: Vec<u8>) -> u32 {
+        let crc_bytes: Vec<u8> = chunk_type.bytes().iter().chain(&data).copied().collect();
+        checksum_ieee(&crc_bytes)
+    }
+
     pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {
         let crc_bytes: Vec<u8> = chunk_type.bytes().iter().chain(&data).copied().collect();
         let crc = checksum_ieee(&crc_bytes);

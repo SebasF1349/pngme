@@ -1,8 +1,11 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
-use crate::chunk::{Chunk, ChunkError};
-use std::{fmt, str::FromStr};
+use crate::{
+    chunk::{Chunk, ChunkError},
+    chunk_type::ChunkTypeError,
+};
+use std::fmt;
 
 struct Png {
     chunks: Vec<Chunk>,
@@ -14,12 +17,8 @@ enum PngError {
     StandardHeader,
     NotFound,
     Chunk(ChunkError),
+    ChunkType(ChunkTypeError),
 }
-
-/* pub length: [u8; 4],
-pub c_type: ChunkType,
-pub data: Vec<u8>,
-pub crc: [u8; 4], */
 
 impl Png {
     const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
@@ -51,12 +50,17 @@ impl Png {
     pub fn chunks(&self) -> &[Chunk] {
         &self.chunks
     }
-    /* TODO: */
     pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
-        Some(&self.chunks[0])
+        self.chunks
+            .iter()
+            .find(|chunk| chunk.c_type.bytes() == chunk_type.as_bytes())
     }
     pub fn as_bytes(&self) -> Vec<u8> {
-        vec![0]
+        let mut bytes = self.header().to_vec();
+        for chunk in self.chunks() {
+            bytes.append(&mut chunk.as_bytes());
+        }
+        bytes
     }
 }
 
@@ -69,35 +73,30 @@ impl TryFrom<&[u8]> for Png {
         if values[..8] != Self::STANDARD_HEADER {
             return Err(PngError::StandardHeader);
         }
-        Chunk::try_from(values).map_or_else(
-            |err| Err(PngError::Chunk(err)),
-            |val| Ok(Png { chunks: vec![val] }),
-        )
+
+        let mut chunks = vec![];
+        let mut pos = 8;
+        while pos < values.len() {
+            let length: &[u8; 4] = values[pos..(pos + 4)].try_into().unwrap();
+            let length = u32::from_be_bytes(*length);
+
+            let chunk: &[u8] = values[pos..(pos + 12 + length as usize)]
+                .try_into()
+                .unwrap();
+
+            match Chunk::try_from(chunk) {
+                Ok(chunk) => chunks.push(chunk),
+                Err(err) => return Err(PngError::Chunk(err)),
+            }
+            pos += 12 + length as usize;
+        }
+        Ok(Png { chunks })
     }
 }
 
-/* TODO: */
-impl FromStr for Png {
-    type Err = PngError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if !s.is_ascii() {
-            return Err(PngError::NotFound);
-        }
-        let array = s.find("pat");
-
-        match array {
-            Some(arr) => Ok(Png::try_from(vec![2, 3].as_ref()).unwrap()),
-            None => Err(PngError::NotFound),
-        }
-    }
-}
-
-/* TODO: */
 impl fmt::Display for Png {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "  Length: {}", self.chunks.len())?;
-        Ok(())
+        write!(f, "")
     }
 }
 
