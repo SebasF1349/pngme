@@ -1,18 +1,30 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
-use std::{fmt, str::FromStr};
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct ChunkType {
-    pub bytes: [u8; 4],
-}
+use std::{error, fmt, str::FromStr};
 
 #[derive(Debug)]
 pub enum ChunkTypeError {
     Bytes,
     Character,
     StringLenght,
+}
+
+impl error::Error for ChunkTypeError {}
+
+impl fmt::Display for ChunkTypeError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ChunkTypeError::Bytes => write!(f, "Non Alphabetic Characters"),
+            ChunkTypeError::Character => write!(f, "Non ASCII Characters"),
+            ChunkTypeError::StringLenght => write!(f, "Chunk Incorrect Length"),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct ChunkType {
+    pub bytes: [u8; 4],
 }
 
 impl ChunkType {

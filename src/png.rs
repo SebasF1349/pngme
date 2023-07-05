@@ -1,23 +1,32 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
-use crate::{
-    chunk::{Chunk, ChunkError},
-    chunk_type::ChunkTypeError,
-};
-use std::fmt;
-
-struct Png {
-    chunks: Vec<Chunk>,
-}
+use crate::chunk::{Chunk, ChunkError};
+use std::{error, fmt};
 
 #[derive(Debug)]
-enum PngError {
+pub enum PngError {
     Size,
     StandardHeader,
     NotFound,
     Chunk(ChunkError),
-    ChunkType(ChunkTypeError),
+}
+
+impl error::Error for PngError {}
+
+impl fmt::Display for PngError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            PngError::Size => write!(f, "Missing data"),
+            PngError::StandardHeader => write!(f, "Missing Standard Header"),
+            PngError::NotFound => write!(f, "Not found Chunk"),
+            PngError::Chunk(err) => write!(f, "Non valid Chunk: {}", err),
+        }
+    }
+}
+
+pub struct Png {
+    chunks: Vec<Chunk>,
 }
 
 impl Png {

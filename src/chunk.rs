@@ -3,14 +3,7 @@
 
 use crate::chunk_type::{ChunkType, ChunkTypeError};
 use crc::crc32::checksum_ieee;
-use std::fmt;
-
-pub struct Chunk {
-    pub length: [u8; 4],
-    pub c_type: ChunkType,
-    pub data: Vec<u8>,
-    pub crc: [u8; 4],
-}
+use std::{error, fmt};
 
 #[derive(Debug)]
 pub enum ChunkError {
@@ -18,6 +11,26 @@ pub enum ChunkError {
     Length,
     ChunkType(ChunkTypeError),
     NonString,
+}
+
+impl error::Error for ChunkError {}
+
+impl fmt::Display for ChunkError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ChunkError::Invalid => write!(f, "Values don't represent a valud Chunk"),
+            ChunkError::Length => write!(f, "Chunk is missing data"),
+            ChunkError::ChunkType(err) => write!(f, "Non valid Chunk Type: {}", err),
+            ChunkError::NonString => write!(f, "Data is not a String"),
+        }
+    }
+}
+
+pub struct Chunk {
+    pub length: [u8; 4],
+    pub c_type: ChunkType,
+    pub data: Vec<u8>,
+    pub crc: [u8; 4],
 }
 
 impl Chunk {
