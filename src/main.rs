@@ -25,7 +25,7 @@ fn main() -> Result<()> {
             message,
             output_file,
         } => {
-            let mut png = read_file(&file_path)?;
+            let mut png: Png = std::fs::read(&file_path)?.as_slice().try_into()?;
             png.append_chunk(Chunk::new(
                 ChunkType::from_str(&chunk_type)?,
                 message.as_bytes().to_vec(),
@@ -43,7 +43,7 @@ fn main() -> Result<()> {
             file_path,
             chunk_type,
         } => {
-            let png = read_file(&file_path)?;
+            let png: Png = std::fs::read(file_path)?.as_slice().try_into()?;
             let chunk = png.chunk_by_type(&chunk_type);
             match chunk {
                 Some(chunk) => println!("Message: {}", chunk.data_as_string().unwrap()),
@@ -55,7 +55,7 @@ fn main() -> Result<()> {
             file_path,
             chunk_type,
         } => {
-            let mut png = read_file(&file_path)?;
+            let mut png: Png = std::fs::read(&file_path)?.as_slice().try_into()?;
             png.remove_chunk(&chunk_type)?;
             let mut new_file = File::create(file_path)?;
             new_file.write_all(png.as_bytes().as_slice())?;
@@ -63,17 +63,9 @@ fn main() -> Result<()> {
             Ok(())
         }
         Commands::Print { file_path } => {
-            let png = read_file(&file_path)?;
+            let png: Png = std::fs::read(file_path)?.as_slice().try_into()?;
             println!("{}", png);
             Ok(())
         }
     }
-}
-
-fn read_file(file_path: &str) -> Result<Png> {
-    let mut file = File::open(file_path)?;
-    let mut buffer = Vec::new();
-    file.read_to_end(&mut buffer)?;
-    let png = Png::try_from(&buffer[..])?;
-    Ok(png)
 }
