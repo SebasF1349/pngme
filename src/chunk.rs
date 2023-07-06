@@ -1,6 +1,3 @@
-#![allow(unused_variables)]
-#![allow(dead_code)]
-
 use crate::chunk_type::{ChunkType, ChunkTypeError};
 use crc::crc32::checksum_ieee;
 use std::{error, fmt};
@@ -63,7 +60,7 @@ impl Chunk {
         u32::from_be_bytes(self.crc)
     }
     pub fn data_as_string(&self) -> Result<String, ChunkError> {
-        String::from_utf8(self.data.clone()).map_err(|err| ChunkError::NonString)
+        String::from_utf8(self.data.clone()).map_err(|_| ChunkError::NonString)
     }
     pub fn as_bytes(&self) -> Vec<u8> {
         let chunk_data: Vec<u8> = self

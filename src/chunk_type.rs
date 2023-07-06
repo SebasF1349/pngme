@@ -1,6 +1,3 @@
-#![allow(unused_variables)]
-#![allow(dead_code)]
-
 use std::{error, fmt, str::FromStr};
 
 #[derive(Debug)]

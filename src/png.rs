@@ -1,6 +1,3 @@
-#![allow(unused_variables)]
-#![allow(dead_code)]
-
 use crate::chunk::{Chunk, ChunkError};
 use std::{error, fmt};
 
@@ -46,7 +43,7 @@ impl Png {
             .find(|chunk| chunk.1.chunk_type().bytes() == chunk_type.as_bytes());
 
         match find {
-            Some((size, chunk)) => {
+            Some((size, _)) => {
                 let ret = self.chunks.remove(size);
                 Ok(ret)
             }
@@ -118,13 +115,11 @@ mod tests {
     use std::str::FromStr;
 
     fn testing_chunks() -> Vec<Chunk> {
-        let mut chunks = Vec::new();
-
-        chunks.push(chunk_from_strings("FrSt", "I am the first chunk").unwrap());
-        chunks.push(chunk_from_strings("miDl", "I am another chunk").unwrap());
-        chunks.push(chunk_from_strings("LASt", "I am the last chunk").unwrap());
-
-        chunks
+        vec![
+            chunk_from_strings("FrSt", "I am the first chunk").unwrap(),
+            chunk_from_strings("miDl", "I am another chunk").unwrap(),
+            chunk_from_strings("LASt", "I am the last chunk").unwrap(),
+        ]
     }
 
     fn testing_png() -> Png {
@@ -133,8 +128,6 @@ mod tests {
     }
 
     fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk, ChunkTypeError> {
-        use std::str::FromStr;
-
         let chunk_type = ChunkType::from_str(chunk_type)?;
         let data: Vec<u8> = data.bytes().collect();
 
