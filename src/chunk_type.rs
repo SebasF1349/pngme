@@ -32,7 +32,8 @@ impl ChunkType {
         self.bytes
     }
     pub fn is_valid(&self) -> bool {
-        self.bytes[2].is_ascii_uppercase()
+        self.bytes.iter().all(|byte| byte.is_ascii_alphabetic())
+            && self.bytes[2].is_ascii_uppercase()
     }
     pub fn is_critical(&self) -> bool {
         self.bytes[0].is_ascii_uppercase()
