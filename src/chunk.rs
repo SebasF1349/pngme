@@ -27,10 +27,10 @@ impl fmt::Display for ChunkError {
 }
 
 pub struct Chunk {
-    pub length: [u8; 4],
-    pub c_type: ChunkType,
-    pub data: Vec<u8>,
-    pub crc: [u8; 4],
+    length: [u8; 4],
+    c_type: ChunkType,
+    data: Vec<u8>,
+    crc: [u8; 4],
 }
 
 impl Chunk {
@@ -41,13 +41,13 @@ impl Chunk {
 
     pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {
         let crc_bytes: Vec<u8> = chunk_type.bytes().iter().chain(&data).copied().collect();
-        let crc = checksum_ieee(&crc_bytes);
+        let crc = checksum_ieee(&crc_bytes).to_be_bytes();
 
         Chunk {
             length: u32::try_from(data.len()).unwrap().to_be_bytes(),
             c_type: chunk_type,
             data,
-            crc: crc.to_be_bytes(),
+            crc,
         }
     }
     pub fn length(&self) -> u32 {

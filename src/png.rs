@@ -43,7 +43,7 @@ impl Png {
             .chunks
             .iter_mut()
             .enumerate()
-            .find(|chunk| chunk.1.c_type.bytes() == chunk_type.as_bytes());
+            .find(|chunk| chunk.1.chunk_type().bytes() == chunk_type.as_bytes());
 
         match find {
             Some((size, chunk)) => {
@@ -62,7 +62,7 @@ impl Png {
     pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
         self.chunks
             .iter()
-            .find(|chunk| chunk.c_type.bytes() == chunk_type.as_bytes())
+            .find(|chunk| chunk.chunk_type().bytes() == chunk_type.as_bytes())
     }
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut bytes = self.header().to_vec();
