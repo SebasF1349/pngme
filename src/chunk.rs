@@ -69,7 +69,7 @@ impl Chunk {
         let chunk_data: Vec<u8> = self
             .length
             .iter()
-            .chain(&self.c_type.bytes)
+            .chain(&self.c_type.bytes())
             .chain(&self.data)
             .chain(&self.crc)
             .copied()
